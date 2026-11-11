@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+.venv/
+venv/
+env/
+ENV/
+.Python
+
+# App data (auto-generated)
+db/
+assets/logo.png
+*.log
+
+# Secrets
+.env
+.env.*
+
+# IDE / OS
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db

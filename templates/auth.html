@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cobalt1 — Account</title>
+<style>
+:root {
+  --bg: #ffffff; --border: #e3e3e3; --text: #111111; --muted: #757575;
+  --input-bg: #ffffff; --overlay: rgba(0,0,0,0.4);
+}
+[data-theme="dark"] {
+  --bg: #0e0e0e; --border: #2c2c2c; --text: #ececec; --muted: #9b9b9b;
+  --input-bg: #131313; --overlay: rgba(0,0,0,0.7);
+}
+* { box-sizing: border-box; }
+body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background: var(--bg); color: var(--text); height: 100vh; display: flex; overflow: hidden; }
+.auth-container { display: flex; width: 100%; height: 100%; }
+.auth-left { flex: 1; padding: 40px; display: flex; flex-direction: column; justify-content: center; align-items: center; overflow-y: auto; position: relative; }
+.auth-right { flex: 1; background: #111; display: flex; align-items: center; justify-content: center; position: relative; }
+.auth-right .brand { color: #eee; font-size: 28px; font-weight: 600; letter-spacing: -0.02em; }
+.auth-form-wrapper { width: 100%; max-width: 380px; }
+h1 { margin: 0 0 8px 0; font-size: 28px; font-weight: 600; letter-spacing: -0.02em; }
+.subtitle { color: var(--muted); font-size: 15px; margin-bottom: 32px; }
+.input-group { margin-bottom: 20px; }
+.input-group label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 8px; color: var(--muted); }
+input[type="text"], input[type="password"] {
+  width: 100%; padding: 12px 14px; font-size: 15px; font-family: inherit;
+  background: var(--input-bg); color: var(--text);
+  border: 1px solid var(--border); border-radius: 8px; outline: none; transition: border-color 0.15s; }
+input:focus { border-color: var(--text); }
+.btn { width: 100%; padding: 14px; border-radius: 8px; font-size: 15px; font-weight: 600;
+  cursor: pointer; border: none; background: var(--text); color: var(--bg);
+  transition: opacity 0.15s; display: flex; align-items: center; justify-content: center; }
+.btn:hover { opacity: 0.85; }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.error-msg { color: #d9534f; font-size: 14px; margin-top: 12px; min-height: 20px; text-align: center; }
+.toggle-text { text-align: center; margin-top: 24px; font-size: 14px; color: var(--muted); }
+.toggle-text a { color: var(--text); text-decoration: underline; cursor: pointer; font-weight: 500; }
+.back-link { position: absolute; top: 20px; left: 20px; font-size: 14px; color: var(--muted); text-decoration: none; }
+.back-link:hover { color: var(--text); }
+.terms-box { max-height: 120px; overflow-y: auto; border: 1px solid var(--border); border-radius: 8px;
+  padding: 12px; font-size: 12px; line-height: 1.5; color: var(--muted); margin-bottom: 12px; }
+.checkbox-label { display: flex; align-items: flex-start; gap: 10px; font-size: 13px; cursor: pointer; user-select: none; }
+.checkbox-label input { margin-top: 3px; width: 16px; height: 16px; accent-color: var(--text); }
+.toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+  background: var(--text); color: var(--bg); padding: 12px 24px; border-radius: 8px;
+  font-size: 14px; font-weight: 500; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  opacity: 0; pointer-events: none; transition: opacity 0.3s; }
+.toast.show { opacity: 1; }
+@media (max-width: 768px) { .auth-right { display: none; } }
+</style>
+</head>
+<body>
+  <div id="toast" class="toast"></div>
+  <div class="auth-container">
+    <div class="auth-left">
+      <a href="/" class="back-link">← Back to chat</a>
+      <div class="auth-form-wrapper">
+        <div id="login-section">
+          <h1>Welcome back</h1>
+          <div class="subtitle">Log in to sync your conversations and usage.</div>
+          <div class="input-group"><label for="login-username">Username</label>
+            <input type="text" id="login-username" autocomplete="username" /></div>
+          <div class="input-group"><label for="login-password">Password</label>
+            <input type="password" id="login-password" autocomplete="current-password" /></div>
+          <button class="btn" id="login-submit" type="button">Log in</button>
+          <div class="error-msg" id="login-error"></div>
+          <div class="toggle-text">Don't have an account? <a id="go-signup">Sign up</a></div>
+        </div>
+        <div id="signup-section" hidden>
+          <h1>Create an account</h1>
+          <div class="subtitle">Save your chats securely on the server.</div>
+          <div class="input-group"><label for="signup-username">Username</label>
+            <input type="text" id="signup-username" autocomplete="username" placeholder="3-32 chars, a-z 0-9 _" /></div>
+          <div class="input-group"><label for="signup-password">Password</label>
+            <input type="password" id="signup-password" autocomplete="new-password" placeholder="Min 8 characters" /></div>
+          <div class="input-group"><label>Terms and Conditions</label>
+            <div class="terms-box">By creating an account, you agree to our Terms and Conditions and Privacy Policy. Your conversations will be stored encrypted on this server.</div>
+            <label class="checkbox-label"><input type="checkbox" id="signup-accept" />
+              <span>I agree to the Terms and Conditions and Privacy Policy.</span></label>
+          </div>
+          <button class="btn" id="signup-submit" type="button" style="margin-top:20px;">Create account</button>
+          <div class="error-msg" id="signup-error"></div>
+          <div class="toggle-text">Already have an account? <a id="go-login">Log in</a></div>
+        </div>
+      </div>
+    </div>
+    <div class="auth-right"><div class="brand">Cobalt1</div></div>
+  </div>
+<script>
+(function () {
+  const $ = s => document.querySelector(s);
+  const LS_TOKEN = 'cobalt1.auth.token';
+  const LS_THEME = 'cobalt1.theme.v1';
+
+  let t = localStorage.getItem(LS_THEME);
+  if (!t) t = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  document.documentElement.setAttribute('data-theme', t);
+
+  function showToast(msg) {
+    const el = $('#toast'); el.textContent = msg; el.classList.add('show');
+    setTimeout(() => el.classList.remove('show'), 4000);
+  }
+  function setMode(mode) {
+    $('#login-section').hidden = mode !== 'login';
+    $('#signup-section').hidden = mode !== 'signup';
+    if (mode === 'login') $('#login-username').focus(); else $('#signup-username').focus();
+  }
+  setMode(new URLSearchParams(window.location.search).get('mode') === 'signup' ? 'signup' : 'login');
+  $('#go-signup').addEventListener('click', () => setMode('signup'));
+  $('#go-login').addEventListener('click', () => setMode('login'));
+
+  async function post(url, body) {
+    const r = await fetch(url, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(j.error || ('HTTP ' + r.status));
+    return j;
+  }
+
+  $('#login-submit').addEventListener('click', async () => {
+    const u = $('#login-username').value.trim();
+    const p = $('#login-password').value;
+    const err = $('#login-error'); err.textContent = '';
+    if (!u || !p) { err.textContent = 'Username and password required.'; return; }
+    const btn = $('#login-submit'); btn.disabled = true;
+    try {
+      const j = await post('/api/auth/login', { username: u, password: p });
+      localStorage.setItem(LS_TOKEN, j.token);
+      showToast('Logged in. Redirecting…');
+      setTimeout(() => { window.location.href = '/'; }, 800);
+    } catch (e) { err.textContent = e.message; btn.disabled = false; }
+  });
+
+  $('#signup-submit').addEventListener('click', async () => {
+    const u = $('#signup-username').value.trim();
+    const p = $('#signup-password').value;
+    const a = $('#signup-accept').checked;
+    const err = $('#signup-error'); err.textContent = '';
+    if (!u || !p) { err.textContent = 'Username and password required.'; return; }
+    if (!a) { err.textContent = 'You must accept the Terms and Conditions.'; return; }
+    const btn = $('#signup-submit'); btn.disabled = true;
+    try {
+      const j = await post('/api/auth/register', { username: u, password: p, accept_terms: a });
+      localStorage.setItem(LS_TOKEN, j.token);
+      showToast('Account created. Redirecting…');
+      setTimeout(() => { window.location.href = '/'; }, 800);
+    } catch (e) { err.textContent = e.message; btn.disabled = false; }
+  });
+
+  $('#login-password').addEventListener('keydown', e => { if (e.key === 'Enter') $('#login-submit').click(); });
+  $('#signup-password').addEventListener('keydown', e => { if (e.key === 'Enter') $('#signup-submit').click(); });
+})();
+</script>
+</body>
+</html>
